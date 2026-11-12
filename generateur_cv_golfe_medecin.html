@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Générateur de CV — Golfe · Médecin</title>
+<style>
+  :root{
+    --blue-900:#0E3A66;   /* titres, nom */
+    --blue-700:#1B5E9E;   /* organismes */
+    --blue-500:#2E7DC4;   /* accent, puces */
+    --blue-050:#EDF3FA;   /* fond colonne gauche */
+    --blue-line:#B9CEE4;
+    --ink:#16202B;
+    --muted:#5D6B7A;
+    --bg:#7C8894;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Carlito,Calibri,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+
+  /* ===================== ATELIER (écran) ===================== */
+  .app{display:grid;grid-template-columns:400px 1fr;min-height:100vh}
+  .form{background:#fff;padding:20px 22px 120px;overflow-y:auto;height:100vh;border-right:1px solid #D3DFEC}
+  .form h1{font-size:17px;color:var(--blue-900);margin-bottom:3px}
+  .form .lede{font-size:12.5px;color:#5A4A16;margin-bottom:18px;line-height:1.5;
+    background:#FFF8DB;border-left:3px solid #E3C34D;border-radius:5px;padding:10px 12px}
+  .form .lede b{color:#3F3410}
+  fieldset{border:none;border-top:1px solid #E3EBF3;padding-top:14px;margin-top:16px}
+  legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--blue-500);font-weight:700;padding-right:8px}
+  label{display:block;font-size:11.5px;color:var(--muted);margin:10px 0 3px}
+  input,textarea{width:100%;padding:7px 9px;border:1px solid #C6D6E6;border-radius:5px;
+    font:inherit;font-size:13px;background:#FAFCFE;color:var(--ink)}
+  input:focus,textarea:focus{outline:2px solid var(--blue-500);outline-offset:-1px;background:#fff}
+  textarea{resize:vertical;min-height:56px;line-height:1.4}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .blk{border:1px solid #E3EBF3;border-radius:7px;padding:10px 11px 13px;margin-top:11px;background:#FAFCFE;position:relative}
+  .blk .del{position:absolute;top:7px;right:8px;background:none;border:none;color:#B04A4A;
+    cursor:pointer;font-size:16px;line-height:1;padding:2px 5px;border-radius:4px}
+  .blk .del:hover{background:#FBEAEA}
+  .add{margin-top:10px;background:#fff;border:1px dashed var(--blue-500);color:var(--blue-700);
+    padding:7px 12px;border-radius:6px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:700;width:100%}
+  .add:hover{background:#EFF6FD}
+  .hint{font-size:11px;color:var(--muted);font-style:italic;margin-top:4px;line-height:1.4}
+  .go{position:fixed;left:0;bottom:0;width:400px;padding:12px 22px 14px;background:#fff;
+    border-top:1px solid #E3EBF3;box-shadow:0 -6px 14px rgba(0,0,0,.05);z-index:5}
+  .go button{width:100%;background:var(--blue-700);color:#fff;border:none;padding:13px;border-radius:7px;
+    font:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+  .go button:hover{background:var(--blue-900)}
+  .go .note{font-size:11px;color:var(--muted);text-align:center;margin-top:7px}
+  .stage{padding:26px 20px 60px;overflow-y:auto;height:100vh;display:flex;justify-content:center;align-items:flex-start}
+  .shadow{box-shadow:0 6px 26px rgba(0,0,0,.28)}
+  .warn{width:210mm;margin:0 auto 10px;background:#FFF4E5;border:1px solid #E0A94A;color:#7A4B06;
+    border-radius:7px;padding:10px 14px;font-size:13px;line-height:1.45;display:none}
+  .warn.on{display:block}
+
+  /* ===================== LE CV ===================== */
+  .page{width:210mm;height:297mm;overflow:hidden;background:#fff;
+    display:grid;grid-template-columns:62mm 1fr;font-size:10pt;line-height:1.36;flex:none}
+
+  /* --- colonne gauche --- */
+  .side{background:var(--blue-050);padding:12mm 7mm 10mm 9mm}
+  .photo{width:37mm;height:45mm;margin:0 auto 6mm;border:1px solid var(--blue-line);background:#DCE8F4;
+    display:flex;align-items:center;justify-content:center;color:#93AECA;font-size:8pt;
+    letter-spacing:.08em;text-transform:uppercase;overflow:hidden}
+  .photo img{width:100%;height:100%;object-fit:cover}
+  .side h2{font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-900);
+    border-bottom:1.3pt solid var(--blue-700);padding-bottom:1.4mm;margin:0 0 2.8mm}
+  .side section{margin-bottom:6mm}
+  .kv{margin-bottom:2.2mm}
+  .kv .k{display:block;font-size:7.6pt;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .kv .v{display:block;word-break:break-word;font-size:9pt}
+  .side ul{list-style:none}
+  .side ul li{position:relative;padding-left:3.4mm;margin-bottom:1.5mm;font-size:9pt}
+  .side ul li::before{content:"";position:absolute;left:0;top:1.8mm;width:1.5mm;height:1.5mm;background:var(--blue-500)}
+  .status .note{display:block;font-size:8pt;color:var(--muted);font-style:italic}
+  .lang{display:flex;justify-content:space-between;gap:2mm;margin-bottom:1.5mm;font-size:9pt}
+  .lang .lvl{color:var(--muted);white-space:nowrap;font-size:8.6pt}
+
+  /* --- colonne droite --- */
+  .main{padding:12mm 11mm 10mm 9mm}
+  .name{font-size:21.5pt;line-height:1.08;color:var(--blue-900)}
+  .name .fn{font-weight:400}
+  .name .ln{font-weight:700;text-transform:uppercase}
+  .role{font-size:11.5pt;color:var(--blue-500);margin-top:1mm;font-weight:700}
+  .subrole{font-size:9.5pt;color:var(--muted);margin-top:.7mm}
+  .intro{margin:4.4mm 0 5.4mm;font-size:9.5pt;color:#28323C;
+    border-left:2.4pt solid var(--blue-500);padding-left:3.6mm}
+  .main h2{font-size:9.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-900);
+    border-bottom:1.3pt solid var(--blue-700);padding-bottom:1.3mm;margin:0 0 3mm}
+  .main section{margin-bottom:5.1mm}
+  .item{margin-bottom:3.8mm}
+  .item:last-child{margin-bottom:0}
+  .item .line1{display:flex;justify-content:space-between;align-items:baseline;gap:4mm}
+  .item .title{font-weight:700;font-size:10.2pt}
+  .item .dates{font-size:8.8pt;color:var(--muted);white-space:nowrap}
+  .item .org{font-size:9.4pt;color:var(--blue-700);font-weight:700;margin-top:.3mm}
+  .item .place{font-weight:400;color:var(--muted)}
+  /* une seule écriture pour toutes les listes de la colonne droite */
+  .main ul{list-style:none;margin-top:1.4mm}
+  .main ul li{position:relative;padding-left:4mm;margin-bottom:.85mm;font-size:9.4pt}
+  .main ul li::before{content:"–";position:absolute;left:0;color:var(--blue-500);font-weight:700}
+  /* listes autonomes : tiret dans la marge, texte aligné sur les titres d'entrées */
+  .cols{margin-top:0}
+  .cols li{padding-left:0;margin-bottom:1.1mm}
+  .cols li::before{left:-4mm}
+  .refs{font-size:9.4pt;color:var(--muted);font-style:italic}
+
+  /* ===================== FILIGRANE ===================== */
+  .page{position:relative}
+  .wm{position:absolute;left:-25%;top:-25%;width:150%;height:150%;
+    display:flex;flex-wrap:wrap;align-content:center;justify-content:center;
+    gap:11mm 8mm;transform:rotate(-30deg);pointer-events:none;z-index:6;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wm span{font-size:18pt;font-weight:700;letter-spacing:.14em;white-space:nowrap;
+    color:rgba(18,60,100,.155);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.unlocked .wm{display:none}
+
+  /* ===================== ÉTAT / DÉBLOCAGE ===================== */
+  .etat{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:14px}
+  .etat.ko{color:#A8410F}
+  .cle{display:flex;gap:7px;margin-top:4px}
+  .cle input{flex:1;text-transform:uppercase;letter-spacing:.05em}
+  .cle button{background:var(--blue-700);color:#fff;border:none;border-radius:5px;
+    padding:0 14px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .cle button:hover{background:var(--blue-900)}
+  .verdict{font-size:11.5px;margin-top:6px;line-height:1.4}
+  .verdict.ok{color:#0F6B3F;font-weight:700}
+  .verdict.no{color:#A8410F}
+  .lien{background:none;border:none;color:var(--blue-700);text-decoration:underline;
+    cursor:pointer;font:inherit;font-size:11px;padding:0;margin-top:8px}
+
+  /* ===================== RAPPEL AVANT IMPRESSION ===================== */
+  .modal{position:fixed;inset:0;background:rgba(12,28,48,.55);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal[hidden]{display:none}
+  .boite{background:#fff;border-radius:12px;max-width:440px;padding:24px 26px;
+    box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .boite h3{font-size:17px;color:var(--blue-900);margin-bottom:10px}
+  .boite p{font-size:13.5px;line-height:1.6;color:var(--ink);margin-bottom:8px}
+  .boite .enc{background:#FFF8DB;border-left:3px solid #E3C34D;border-radius:5px;
+    padding:10px 12px;font-size:13px;line-height:1.55;color:#5A4A16;margin:12px 0 16px}
+  .boite .acts{display:flex;gap:10px;justify-content:flex-end}
+  .boite button{border:none;border-radius:7px;padding:10px 18px;font:inherit;
+    font-size:13.5px;font-weight:700;cursor:pointer;background:var(--blue-700);color:#fff}
+  .boite button:hover{background:var(--blue-900)}
+  .boite button.sec{background:#fff;color:var(--blue-700);border:1px solid var(--blue-500)}
+
+  /* ===================== IMPRESSION ===================== */
+  @page{size:A4;margin:0}
+  @media print{
+    body{background:#fff}
+    .app{display:block}
+    .form,.warn,.modal{display:none}
+    .stage{padding:0;height:auto;display:block;overflow:visible}
+    .shadow{box-shadow:none}
+    .page{margin:0}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ FORMULAIRE (ordre du CV) ============ -->
+  <div class="form">
+    <h1>Votre CV — Golfe · Médecin</h1>
+    <p class="lede">Remplissez à gauche, le CV se dessine à droite en direct.
+       Les rubriques suivent l'ordre du document.<br>
+       Le bouton <b>+ Ajouter</b> crée une nouvelle entrée, la croix <b>&times;</b> la supprime.
+       Une rubrique laissée vide disparaît automatiquement du CV.<br>
+       <b>Le CV se rédige en anglais</b> — c'est la langue de travail des hôpitaux du Golfe
+       et celle de DataFlow. Le formulaire reste en français.</p>
+
+    <fieldset>
+      <legend>Identité</legend>
+      <label>Photo</label>
+      <input type="file" id="photo" accept="image/*">
+      <p class="hint">Attendue dans le Golfe. Photo d'identité récente, fond clair, tenue professionnelle.</p>
+      <div class="row">
+        <div><label>Prénom (comme sur le passeport)</label><input data-b="prenom" value="Yacine"></div>
+        <div><label>Nom (comme sur le passeport)</label><input data-b="nom" value="Benali"></div>
+      </div>
+      <p class="hint">Orthographiez le nom <b>exactement</b> comme sur le passeport, sans accent
+         ni variante. Une différence d'une seule lettre bloque la vérification DataFlow.</p>
+      <label>Titre professionnel (en anglais)</label>
+      <input data-b="titre" value="Consultant Cardiologist">
+      <label>Sous-titre (en anglais)</label>
+      <input data-b="soustitre" value="9 years of hospital practice · DataFlow verification in progress">
+      <label>Accroche (en anglais)</label>
+      <textarea data-b="accroche" rows="4">Board-certified cardiologist with nine years of hospital practice, specialised in non-invasive cardiac imaging and acute coronary care. Seeking a consultant position in the GCC; DHA and SCFHS licensing pathway under way.</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact</legend>
+      <label>Téléphone</label><input data-b="tel" value="+213 6 61 00 00 00">
+      <label>E-mail</label><input data-b="email" value="y.benali.md@email.com">
+      <label>Adresse</label><input data-b="adresse" value="Algiers 16000, Algeria">
+      <label>LinkedIn</label><input data-b="linkedin" value="linkedin.com/in/ybenali-md">
+    </fieldset>
+
+    <fieldset>
+      <legend>Données personnelles</legend>
+      <p class="hint">Attendues dans le Golfe, contrairement au Québec. Elles doivent correspondre
+         au passeport, caractère pour caractère.</p>
+      <label>Date de naissance</label><input data-b="dob" value="12 March 1988">
+      <label>Nationalité</label><input data-b="nat" value="Algerian">
+      <label>N° de passeport</label><input data-b="passport" value="A 1234567">
+      <label>Situation familiale</label><input data-b="marital" value="Married">
+    </fieldset>
+
+    <fieldset>
+      <legend>Licences et vérification</legend>
+      <p class="hint">Le bloc décisif dans le Golfe. Indiquez où en est chaque démarche :
+         licence du pays d'origine, good standing certificate, DataFlow, examen Prometric.</p>
+      <div id="statut"></div>
+      <button class="add" data-add="statut">+ Ajouter une ligne</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Langues</legend>
+      <div id="langues"></div>
+      <button class="add" data-add="langues">+ Ajouter une langue</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Expérience professionnelle</legend>
+      <div id="exp"></div>
+      <button class="add" data-add="exp">+ Ajouter un poste</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Formation</legend>
+      <div id="form"></div>
+      <button class="add" data-add="form">+ Ajouter un diplôme</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Formation complémentaire et stages</legend>
+      <p class="hint">DU / DIU et stages hospitaliers. Un stage en France pèse lourd :
+         il donne un référent français au dossier. Laissez vide si vous n'en avez pas,
+         la rubrique disparaîtra du CV.</p>
+      <div id="stages"></div>
+      <button class="add" data-add="stages">+ Ajouter un DU ou un stage</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Compétences cliniques</legend>
+      <label>Une ligne par compétence (en anglais)</label>
+      <textarea data-b="actes" rows="5">Transthoracic and transoesophageal echocardiography
+Exercise stress testing, Holter and ambulatory BP monitoring
+Diagnostic coronary angiography
+Pacemaker implantation (assistant operator)</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Certifications</legend>
+      <label>Une ligne par certification (en anglais)</label>
+      <textarea data-b="certifs" rows="3">ACLS — American Heart Association, 2024
+BLS — American Heart Association, 2024</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Références</legend>
+      <label>Mention</label>
+      <input data-b="mention" value="">
+      <p class="hint">En France, cette mention suffit. Au Québec et dans le Golfe, listez plutôt
+         2 à 3 personnes ci-dessous — dans le Golfe c'est généralement exigé, avec une adresse
+         professionnelle. Demandez toujours leur accord avant de les citer.</p>
+      <div id="refs"></div>
+      <button class="add" data-add="refs">+ Ajouter une référence</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Déblocage</legend>
+      <p class="hint">Sans code, le CV se télécharge avec un filigrane « SPÉCIMEN ».
+         Le code reçu après paiement le retire définitivement sur cet appareil. Ce modèle attend un code commençant par <b>GLM</b>.</p>
+      <div class="cle">
+        <input id="code" placeholder="GLM-XXXXX-2026" autocomplete="off">
+        <button id="btn-code" type="button">Débloquer</button>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <button class="lien" id="btn-reset" type="button">Effacer le brouillon et recommencer</button>
+    </fieldset>
+
+    <div class="go">
+      <button id="btn-pdf">Télécharger en PDF</button>
+      <p class="note">Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF ».</p>
+      <p class="etat" id="etat"></p>
+    </div>
+  </div>
+
+  <!-- ============ APERÇU ============ -->
+  <div class="stage">
+   <div>
+    <div class="warn" id="warn">
+      <b>Le contenu dépasse la page.</b> Ce qui suit ne sera pas imprimé.
+      Raccourcissez une mission, retirez un poste ancien, ou allégez les actes techniques.
+    </div>
+
+    <div class="page shadow">
+      <div class="wm" id="wm" aria-hidden="true"></div>
+      <aside class="side">
+        <div class="photo" id="v-photo">Photo</div>
+        <section>
+          <h2>Contact</h2>
+          <div class="kv"><span class="k">Phone</span><span class="v" id="v-tel"></span></div>
+          <div class="kv"><span class="k">Email</span><span class="v" id="v-email"></span></div>
+          <div class="kv"><span class="k">Address</span><span class="v" id="v-adresse"></span></div>
+          <div class="kv"><span class="k">LinkedIn</span><span class="v" id="v-linkedin"></span></div>
+        </section>
+        <section>
+          <h2>Personal details</h2>
+          <div class="kv"><span class="k">Date of birth</span><span class="v" id="v-dob"></span></div>
+          <div class="kv"><span class="k">Nationality</span><span class="v" id="v-nat"></span></div>
+          <div class="kv"><span class="k">Passport no.</span><span class="v" id="v-passport"></span></div>
+          <div class="kv"><span class="k">Marital status</span><span class="v" id="v-marital"></span></div>
+        </section>
+        <section class="status">
+          <h2>Licences &amp; verification</h2>
+          <ul id="v-statut"></ul>
+        </section>
+        <section>
+          <h2>Languages</h2>
+          <div id="v-langues"></div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header>
+          <h1 class="name"><span class="fn" id="v-prenom"></span> <span class="ln" id="v-nom"></span></h1>
+          <div class="role" id="v-titre"></div>
+          <div class="subrole" id="v-soustitre"></div>
+        </header>
+        <p class="intro" id="v-accroche"></p>
+
+        <section>
+          <h2>Work experience</h2>
+          <div id="v-exp"></div>
+        </section>
+
+        <section>
+          <h2>Education</h2>
+          <div id="v-form"></div>
+        </section>
+
+        <section id="s-stages">
+          <h2>Training &amp; courses</h2>
+          <div id="v-stages"></div>
+        </section>
+
+        <section>
+          <h2>Clinical skills</h2>
+          <ul class="cols" id="v-actes"></ul>
+        </section>
+
+        <section>
+          <h2>Certifications</h2>
+          <ul class="cols" id="v-certifs"></ul>
+        </section>
+
+        <section id="s-refs">
+          <h2>References</h2>
+          <p class="refs" id="v-mention"></p>
+          <ul class="cols" id="v-refs"></ul>
+        </section>
+        <div id="fin"></div>
+      </main>
+    </div>
+   </div>
+  </div>
+  <div class="modal" id="modal" hidden>
+    <div class="boite">
+      <h3>Avant de télécharger</h3>
+      <p>La fenêtre d'impression va s'ouvrir. Tout en haut, à la ligne <b>Imprimante</b> :</p>
+      <div class="enc">Choisissez <b>« Enregistrer au format PDF »</b> dans la liste.<br>
+        Sans ça, votre CV part vers une imprimante au lieu d'être enregistré.</div>
+      <div class="acts">
+        <button class="sec" id="m-annuler">Annuler</button>
+        <button id="m-ok">J'ai compris</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+const DATA={refs:[]};
+
+/* ---------- champs simples ---------- */
+document.querySelectorAll('[data-b]').forEach(el=>{
+  const t=document.getElementById('v-'+el.dataset.b);
+  const sync=()=>{
+    if(el.dataset.b==='actes'||el.dataset.b==='certifs'){
+      t.innerHTML = el.value.split('\n').filter(s=>s.trim()).map(s=>'<li>'+esc(s)+'</li>').join('');
+      t.closest('section').style.display = t.innerHTML ? '' : 'none';
+    } else if(el.dataset.b==='mention'){
+      t.textContent = el.value;
+      t.style.display = el.value.trim() ? '' : 'none';
+      refsVis();
+    } else { t.textContent = el.value; }
+  };
+  el.addEventListener('input',sync); sync();
+});
+
+/* ---------- photo ---------- */
+document.getElementById('photo').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    photoURL=ev.target.result;
+    document.getElementById('v-photo').innerHTML='<img src="'+photoURL+'">';
+    sauver();
+  };
+  r.readAsDataURL(f);
+});
+
+/* ---------- blocs répétables ---------- */
+const SCHEMA={
+  statut:{fields:[['txt','Intitulé (en anglais)','DataFlow primary source verification'],['note','Précision (en anglais)','In progress']],
+    render:d=>'<li>'+esc(d.txt)+(d.note?'<span class="note">'+esc(d.note)+'</span>':'')+'</li>',
+    seed:[{txt:'Algerian Medical Licence No. 04521',note:'Valid — issued 2015'},
+          {txt:'Certificate of Good Standing',note:'Issued 2026 — valid 6 months'},
+          {txt:'DataFlow primary source verification',note:'In progress — ref. DF-2026-114872'},
+          {txt:'DHA Prometric examination',note:'Scheduled — June 2026'},
+          {txt:'SCFHS classification',note:'Applied — Consultant grade'}]},
+
+  langues:{fields:[['langue','Langue (en anglais)','English'],['niveau','Niveau (en anglais)','Fluent — IELTS 7.0']],
+    render:d=>'<div class="lang"><span>'+esc(d.langue)+'</span><span class="lvl">'+esc(d.niveau)+'</span></div>',
+    seed:[{langue:'Arabic',niveau:'Native'},
+          {langue:'English',niveau:'Fluent — IELTS 7.0'},
+          {langue:'French',niveau:'Fluent'}]},
+
+  exp:{fields:[['poste','Poste (en anglais)','Consultant Cardiologist'],
+               ['dates','Dates (jour précis)','01 Sep 2021 – Present'],
+               ['etab','Établissement (en anglais)','Mustapha Pacha University Hospital'],
+               ['lieu','Ville, pays (en anglais)','Algiers, Algeria'],
+               ['pts','Missions, une par ligne (en anglais)','1,200 patients per year']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.poste)+
+      '</span><span class="dates">'+esc(d.dates)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.lieu?' <span class="place">— '+esc(d.lieu)+'</span>':'')+'</div>'+
+      (d.pts?'<ul>'+d.pts.split('\n').filter(s=>s.trim()).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+'</div>',
+    seed:[{poste:'Consultant Cardiologist',dates:'01 Sep 2021 – Present',
+           etab:'Mustapha Pacha University Hospital',lieu:'Algiers, Algeria',
+           pts:"1,200 patients per year in outpatient clinics and inpatient wards.\n900 echocardiograms per year, including 120 transoesophageal studies.\nOn-call coverage of the coronary care unit; supervision of 4 residents per term."},
+          {poste:'Specialist Cardiologist',dates:'01 Nov 2019 – 31 Aug 2021',
+           etab:'Kouba Public Hospital',lieu:'Algiers, Algeria',
+           pts:"Outpatient clinics and follow-up of 300 heart-failure patients.\nPost-infarction protocol: 30-day readmissions reduced by 18%."}]},
+
+  form:{fields:[['dip','Diplôme (en anglais)','Doctorate in Medicine (MD)'],
+                ['annee','Année','2019'],
+                ['etab','Établissement (en anglais)','Faculty of Medicine, Algiers'],
+                ['mention','Précision (en anglais)','University of Algiers 1']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.dip)+
+      '</span><span class="dates">'+esc(d.annee)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.mention?' <span class="place">— '+esc(d.mention)+'</span>':'')+'</div></div>',
+    seed:[{dip:'Postgraduate Specialty Diploma — Cardiology',annee:'2019',
+           etab:'Faculty of Medicine, Algiers',mention:'University of Algiers 1'},
+          {dip:'Doctorate in Medicine (MD)',annee:'2014',
+           etab:'Faculty of Medicine, Algiers',mention:'With honours'}]},
+
+  stages:{fields:[['intit','Intitulé (en anglais)','Advanced Echocardiography Course'],
+                  ['dates','Dates','2022'],
+                  ['etab','Établissement (en anglais)','Claude-Bernard University'],
+                  ['lieu','Ville, pays (en anglais)','Lyon, France']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.intit)+
+      '</span><span class="dates">'+esc(d.dates)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.lieu?' <span class="place">— '+esc(d.lieu)+'</span>':'')+'</div></div>',
+    seed:[{intit:'University Diploma in Echocardiography',dates:'2022',
+           etab:'Claude-Bernard University',lieu:'Lyon, France'},
+          {intit:'Clinical fellowship — Interventional Cardiology',dates:'01 Mar – 31 Aug 2023',
+           etab:'Bordeaux University Hospital',lieu:'Bordeaux, France'}]},
+
+  refs:{fields:[['nom','Nom (en anglais)','Prof. Karim Haddad'],
+                ['fonction','Fonction (en anglais)','Head of Cardiology'],
+                ['etab','Établissement (en anglais)','Mustapha Pacha University Hospital'],
+                ['contact','Contact','k.haddad@chu-alger.dz']],
+    render:d=>'<li><b>'+esc(d.nom)+'</b>'+(d.fonction?' — '+esc(d.fonction):'')+
+      (d.etab?', '+esc(d.etab):'')+(d.contact?' · '+esc(d.contact):'')+'</li>',
+    seed:[{nom:'Prof. Karim Haddad',fonction:'Head of Cardiology',
+           etab:'Mustapha Pacha University Hospital',contact:'k.haddad@chu-alger.dz'},
+          {nom:'Dr Leila Amrani',fonction:'Head of Internal Medicine',
+           etab:'Kouba Public Hospital',contact:'l.amrani@eph-kouba.dz'}]}
+};
+
+function build(key){
+  const box=document.getElementById(key), s=SCHEMA[key];
+  box.innerHTML='';
+  DATA[key].forEach((d,i)=>{
+    const b=document.createElement('div'); b.className='blk';
+    b.innerHTML='<button class="del" title="Supprimer">&times;</button>';
+    s.fields.forEach(([k,lbl,ph])=>{
+      const lab=document.createElement('label'); lab.textContent=lbl; b.appendChild(lab);
+      const inp = k==='pts' ? document.createElement('textarea') : document.createElement('input');
+      if(k==='pts') inp.rows=3;
+      inp.placeholder=ph; inp.value=d[k]||'';
+      inp.addEventListener('input',()=>{d[k]=inp.value;paint(key);check();});
+      b.appendChild(inp);
+    });
+    b.querySelector('.del').onclick=()=>{DATA[key].splice(i,1);build(key);paint(key);check();};
+    box.appendChild(b);
+  });
+}
+function paint(key){
+  document.getElementById('v-'+key).innerHTML = DATA[key].map(SCHEMA[key].render).join('');
+  if(key==='stages'){
+    document.getElementById('s-stages').style.display = DATA.stages.length ? '' : 'none';
+  }
+  if(key==='refs') refsVis();
+}
+function refsVis(){
+  const m=document.getElementById('v-mention');
+  const vide = !(m && m.textContent.trim()) && !(DATA.refs && DATA.refs.length);
+  document.getElementById('s-refs').style.display = vide ? 'none' : '';
+}
+Object.keys(SCHEMA).forEach(k=>{
+  DATA[k]=SCHEMA[k].seed.map(o=>Object.assign({},o));
+  build(k); paint(k);
+});
+document.querySelectorAll('[data-add]').forEach(btn=>{
+  btn.onclick=()=>{const k=btn.dataset.add;
+    DATA[k].push(Object.fromEntries(SCHEMA[k].fields.map(f=>[f[0],''])));
+    build(k); paint(k); check();};
+});
+
+/* ===================== RAPPEL AVANT IMPRESSION ===================== */
+const modal=document.getElementById('modal');
+document.getElementById('btn-pdf').onclick=()=>{ modal.hidden=false; };
+document.getElementById('m-annuler').onclick=()=>{ modal.hidden=true; };
+document.getElementById('m-ok').onclick=()=>{ modal.hidden=true; setTimeout(()=>window.print(),120); };
+modal.addEventListener('click',e=>{ if(e.target===modal) modal.hidden=true; });
+
+/* ===================== FILIGRANE ===================== */
+const FILIGRANE = 'SPÉCIMEN';   // texte du filigrane — modifiable
+(function(){
+  const w=document.getElementById('wm');
+  for(let i=0;i<96;i++){const sp=document.createElement('span');sp.textContent=FILIGRANE;w.appendChild(sp);}
+})();
+
+/* ===================== DÉBLOCAGE ===================== */
+/* Aucune liste de codes : la validité se calcule.
+   Un code est accepté si son empreinte commence par SIGNATURE.
+   outils_codes.html applique exactement la même règle pour les fabriquer. */
+const SIGNATURE = 'e35';
+function empreinte(t){
+  let h=0x811c9dc5, s='OBX|'+t;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h.toString(16).padStart(8,'0');
+}
+function appliquerDeblocage(ok){ document.body.classList.toggle('unlocked', !!ok); }
+const vd=document.getElementById('verdict');
+document.getElementById('btn-code').onclick=()=>{
+  const c=document.getElementById('code').value.trim().toUpperCase();
+  if(!c){vd.className='verdict no';vd.textContent='Saisissez votre code.';return;}
+  if(empreinte(c).startsWith(SIGNATURE)){
+    appliquerDeblocage(true);
+    vd.className='verdict ok'; vd.textContent='Code accepté — le filigrane est retiré.';
+    sauver();
+  } else {
+    appliquerDeblocage(false);
+    vd.className='verdict no'; vd.textContent="Code non reconnu. Vérifiez les tirets et l'année.";
+  }
+};
+
+/* ===================== SAUVEGARDE AUTOMATIQUE ===================== */
+const CLE='cv_gcc_medecin';
+const etat=document.getElementById('etat');
+let photoURL='';
+let dispo=true;
+try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); }catch(e){ dispo=false; }
+
+function recueillir(){
+  const simple={};
+  document.querySelectorAll('[data-b]').forEach(el=>simple[el.dataset.b]=el.value);
+  return {simple, blocs:DATA, photo:photoURL,
+          debloque:document.body.classList.contains('unlocked')};
+}
+let minuteur=null;
+function sauver(){
+  if(!dispo) return;
+  clearTimeout(minuteur);
+  minuteur=setTimeout(()=>{
+    try{
+      localStorage.setItem(CLE, JSON.stringify(recueillir()));
+      const d=new Date();
+      etat.className='etat';
+      etat.textContent='Brouillon enregistré à '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    }catch(e){
+      etat.className='etat ko';
+      etat.textContent='Brouillon trop volumineux — réduisez la photo.';
+    }
+  },600);
+}
+function restaurer(){
+  if(!dispo){ etat.className='etat ko';
+    etat.textContent="Sauvegarde indisponible ici — elle fonctionnera une fois le site en ligne."; return; }
+  let o=null;
+  try{ o=JSON.parse(localStorage.getItem(CLE)||'null'); }catch(e){}
+  if(!o) return;
+  document.querySelectorAll('[data-b]').forEach(el=>{
+    if(o.simple && o.simple[el.dataset.b]!==undefined){
+      el.value=o.simple[el.dataset.b];
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+  if(o.blocs){ Object.keys(SCHEMA).forEach(k=>{
+    if(Array.isArray(o.blocs[k])){ DATA[k]=o.blocs[k]; build(k); paint(k); } }); }
+  const cadre=document.getElementById('v-photo');
+  if(o.photo && cadre){ photoURL=o.photo; cadre.innerHTML='<img src="'+o.photo+'">'; }
+  if(o.debloque) appliquerDeblocage(true);
+  etat.textContent='Brouillon restauré.';
+  check();
+}
+document.getElementById('btn-reset').onclick=()=>{
+  if(!confirm('Effacer le brouillon enregistré et recharger la page ?')) return;
+  try{ localStorage.removeItem(CLE); }catch(e){}
+  location.reload();
+};
+document.addEventListener('input', sauver);
+document.addEventListener('click', e=>{ if(e.target.closest('.add,.del')) sauver(); });
+
+/* ---------- alerte de dépassement A4 ---------- */
+const page=document.querySelector('.page'), fin=document.getElementById('fin'),
+      side=document.querySelector('.side'), warn=document.getElementById('warn');
+function check(){
+  const pb=page.getBoundingClientRect().bottom;
+  const over = fin.getBoundingClientRect().bottom > pb + 1
+            || side.scrollHeight > side.clientHeight + 1;
+  warn.classList.toggle('on', over);
+}
+document.addEventListener('input',()=>setTimeout(check,0));
+window.addEventListener('resize',check);
+setTimeout(check,120);
+setTimeout(restaurer,60);
+</script>
+</body>
+</html>

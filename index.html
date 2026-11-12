@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon CV Santé — CV pour professionnels de santé</title>
+<style>
+  :root{
+    --navy:#123152; --navy-soft:#1d4a76; --accent:#0f7b8a;
+    --ink:#1b1f24; --muted:#5a6672; --rule:#c9d6e2; --soft:#eef3f8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Carlito,Calibri,"Segoe UI",Arial,sans-serif;
+    color:var(--ink);background:#fff;line-height:1.55;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+
+  header{background:var(--navy);color:#fff;padding:46px 0 40px;text-align:center}
+  header h1{font-size:30px;letter-spacing:.01em;font-weight:700}
+  header .sub{font-size:16px;color:#bcd2e6;margin-top:10px}
+
+  .intro{padding:34px 0 10px}
+  .intro p{font-size:16px;color:#2b3238;max-width:640px}
+  .intro p + p{margin-top:12px}
+
+  h2{
+    font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);
+    margin:34px 0 14px;padding-bottom:6px;border-bottom:1.5px solid var(--rule);
+  }
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  a.card{
+    display:block;text-decoration:none;color:inherit;
+    border:1px solid var(--rule);border-radius:10px;padding:18px 20px;background:#fff;
+    transition:border-color .15s, box-shadow .15s, transform .15s;
+  }
+  a.card:hover{
+    border-color:var(--accent);box-shadow:0 3px 14px rgba(18,49,82,.11);transform:translateY(-1px);
+  }
+  a.card .t{font-size:17px;font-weight:700;color:var(--navy)}
+  a.card .d{font-size:13.5px;color:var(--muted);margin-top:5px}
+  a.card .m{font-size:12px;color:var(--accent);margin-top:10px;font-weight:700}
+
+  .note{
+    background:#FFF8DB;border-left:3px solid #E3C34D;border-radius:5px;
+    padding:14px 16px;margin:30px 0 0;font-size:14px;color:#5A4A16;
+  }
+  .note b{color:#4a3d10}
+
+  footer{
+    margin-top:46px;background:var(--soft);padding:24px 0;
+    font-size:13px;color:var(--muted);text-align:center;
+  }
+
+  @media (max-width:620px){
+    header{padding:34px 0 30px}
+    header h1{font-size:24px}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Mon CV Santé</h1>
+    <div class="sub">Des CV conçus pour les dossiers d'exercice à l'étranger</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <p>Un CV de médecin ou d'infirmier qui part à l'étranger ne se présente pas
+       comme un CV ordinaire. Chaque pays attend ses propres rubriques&nbsp;: le statut
+       administratif en France, les équivalences au Québec, les détails personnels
+       dans les pays du Golfe.</p>
+    <p>Ces six modèles sont construits pour ça. Vous remplissez un formulaire,
+       le CV se met en forme tout seul sous vos yeux, et vous l'enregistrez en PDF.
+       Rien à installer.</p>
+  </section>
+
+  <h2>France</h2>
+  <div class="grid">
+    <a class="card" href="generateur_cv.html">
+      <div class="t">Médecin</div>
+      <div class="d">Procédure PADHUE, EVC, autorisation d'exercice, RPPS, assurance RCP.</div>
+      <div class="m">Format A4 · avec photo</div>
+    </a>
+    <a class="card" href="generateur_cv_infirmier.html">
+      <div class="t">Infirmier · Infirmière</div>
+      <div class="d">Reconnaissance des qualifications, Ordre national des infirmiers, niveau B2.</div>
+      <div class="m">Format A4 · avec photo</div>
+    </a>
+  </div>
+
+  <h2>Canada — Québec</h2>
+  <div class="grid">
+    <a class="card" href="generateur_cv_quebec_medecin.html">
+      <div class="t">Médecin</div>
+      <div class="d">Collège des médecins du Québec, permis restrictif, examens du Conseil médical.</div>
+      <div class="m">Format Lettre US · sans photo</div>
+    </a>
+    <a class="card" href="generateur_cv_quebec_infirmier.html">
+      <div class="t">Infirmier · Infirmière</div>
+      <div class="d">Ordre des infirmières et infirmiers du Québec, statut de candidate à l'exercice.</div>
+      <div class="m">Format Lettre US · sans photo</div>
+    </a>
+  </div>
+
+  <h2>Pays du Golfe</h2>
+  <div class="grid">
+    <a class="card" href="generateur_cv_golfe_medecin.html">
+      <div class="t">Médecin</div>
+      <div class="d">CV rédigé en anglais, vérification DataFlow, rubrique Personal details.</div>
+      <div class="m">Format A4 · avec photo · en anglais</div>
+    </a>
+    <a class="card" href="generateur_cv_golfe_infirmier.html">
+      <div class="t">Infirmier · Infirmière</div>
+      <div class="d">CV rédigé en anglais, vérification DataFlow, licence professionnelle.</div>
+      <div class="m">Format A4 · avec photo · en anglais</div>
+    </a>
+  </div>
+
+  <p class="note">
+    <b>Essayez librement.</b> Vous pouvez remplir n'importe quel modèle et voir le résultat
+    sans rien payer. Le CV porte alors la mention «&nbsp;SPÉCIMEN&nbsp;». Un code de déblocage
+    la retire définitivement.
+  </p>
+
+</div>
+
+<footer>
+  <div class="wrap">Mon CV Santé — Algérie</div>
+</footer>
+
+</body>
+</html>
