@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>Générateur de CV — France · Médecin</title>
 <style>
   :root{
+    color-scheme:light;
     --blue-900:#0E3A66;   /* titres, nom */
     --blue-700:#1B5E9E;   /* organismes */
     --blue-500:#2E7DC4;   /* accent, puces */
@@ -54,6 +56,7 @@
   .warn.on{display:block}
 
   /* ===================== LE CV ===================== */
+  .page,.side,.photo{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page{width:210mm;height:297mm;overflow:hidden;background:#fff;
     display:grid;grid-template-columns:62mm 1fr;font-size:10pt;line-height:1.36;flex:none}
 
@@ -144,26 +147,59 @@
     font-size:13.5px;font-weight:700;cursor:pointer;background:var(--blue-700);color:#fff}
   .boite button:hover{background:var(--blue-900)}
   .boite button.sec{background:#fff;color:var(--blue-700);border:1px solid var(--blue-500)}
+  .boite .sombre{font-size:12px;color:var(--muted);line-height:1.5;margin:-8px 0 14px}
+
+
+  /* ===================== AFFICHAGE TÉLÉPHONE ===================== */
+  .onglets{display:none}
+  .surtel{display:none}
+  @media screen and (max-width:900px){
+    .surpc{display:none}
+    .surtel{display:inline}
+    .onglets{display:flex;position:sticky;top:0;z-index:30;background:#fff;
+      border-bottom:1px solid #D3DFEC;box-shadow:0 2px 8px rgba(16,40,70,.07)}
+    .onglets button{flex:1;background:none;border:none;border-bottom:3px solid transparent;
+      padding:13px 8px;font:inherit;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
+    .onglets button.actif{color:var(--blue-900);border-bottom-color:var(--blue-700)}
+    .app{display:block;min-height:0}
+    .form{height:auto;overflow:visible;border-right:none;padding:16px 14px 160px}
+    .go{width:100%;left:0}
+    .stage{height:auto;overflow:visible;display:block;padding:12px 8px 118px}
+    .zoom{transform-origin:top left}
+    .warn{width:auto;max-width:100%}
+    body.vue-apercu .form{display:none}
+    body.vue-form .stage{display:none}
+  }
 
   /* ===================== IMPRESSION ===================== */
   @page{size:A4;margin:0}
   @media print{
     body{background:#fff}
     .app{display:block}
-    .form,.warn,.modal{display:none}
+    .form,.warn,.modal,.onglets,.go{display:none}
     .stage{padding:0;height:auto;display:block;overflow:visible}
+    .zoom,.zoomwrap{width:auto !important;height:auto !important;transform:none !important}
     .shadow{box-shadow:none}
-    .page{margin:0}
+    html,body{height:auto;margin:0;padding:0}
+    .app{min-height:0}
+    .page{margin:0;height:295.0mm;
+      break-inside:avoid;page-break-inside:avoid;
+      break-after:avoid;page-break-after:avoid}
   }
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="onglets" id="onglets">
+    <button class="ong actif" type="button" data-vue="form">Formulaire</button>
+    <button class="ong" type="button" data-vue="apercu">Aperçu du CV</button>
+  </div>
+
 
   <!-- ============ FORMULAIRE (ordre du CV) ============ -->
   <div class="form">
     <h1>Votre CV — France · Médecin</h1>
-    <p class="lede">Remplissez à gauche, le CV se dessine à droite en direct.
+    <p class="lede"><span class="surpc">Remplissez à gauche, le CV se dessine à droite en direct.</span><span class="surtel">Deux onglets en haut&nbsp;: <b>Formulaire</b> pour saisir, <b>Aperçu du CV</b> pour voir le résultat.</span>
        Les rubriques suivent l'ordre du document.<br>
        Le bouton <b>+ Ajouter</b> crée une nouvelle entrée, la croix <b>&times;</b> la supprime.
        Une rubrique laissée vide disparaît automatiquement du CV.</p>
@@ -266,11 +302,12 @@ ACLS (American Heart Association) — 2024</textarea>
       <button class="lien" id="btn-reset" type="button">Effacer le brouillon et recommencer</button>
     </fieldset>
 
-    <div class="go">
-      <button id="btn-pdf">Télécharger en PDF</button>
-      <p class="note">Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF ».</p>
-      <p class="etat" id="etat"></p>
-    </div>
+  </div>
+
+  <div class="go">
+    <button id="btn-pdf">Télécharger en PDF</button>
+    <p class="note">Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF ».</p>
+    <p class="etat" id="etat"></p>
   </div>
 
   <!-- ============ APERÇU ============ -->
@@ -281,6 +318,7 @@ ACLS (American Heart Association) — 2024</textarea>
       Raccourcissez une mission, retirez un poste ancien, ou allégez les actes techniques.
     </div>
 
+    <div class="zoomwrap"><div class="zoom">
     <div class="page shadow">
       <div class="wm" id="wm" aria-hidden="true"></div>
       <aside class="side">
@@ -342,7 +380,7 @@ ACLS (American Heart Association) — 2024</textarea>
         </section>
         <div id="fin"></div>
       </main>
-    </div>
+    </div></div></div>
    </div>
   </div>
   <div class="modal" id="modal" hidden>
@@ -351,6 +389,8 @@ ACLS (American Heart Association) — 2024</textarea>
       <p>La fenêtre d'impression va s'ouvrir. Tout en haut, à la ligne <b>Imprimante</b> :</p>
       <div class="enc">Choisissez <b>« Enregistrer au format PDF »</b> dans la liste.<br>
         Sans ça, votre CV part vers une imprimante au lieu d'être enregistré.</div>
+      <p class="sombre">Si votre téléphone est en <b>mode sombre</b>, désactivez-le d'abord :
+        certains navigateurs enregistrent sinon le CV sur fond noir.</p>
       <div class="acts">
         <button class="sec" id="m-annuler">Annuler</button>
         <button id="m-ok">J'ai compris</button>
@@ -500,7 +540,8 @@ document.querySelectorAll('[data-add]').forEach(btn=>{
 const modal=document.getElementById('modal');
 document.getElementById('btn-pdf').onclick=()=>{ modal.hidden=false; };
 document.getElementById('m-annuler').onclick=()=>{ modal.hidden=true; };
-document.getElementById('m-ok').onclick=()=>{ modal.hidden=true; setTimeout(()=>window.print(),120); };
+document.getElementById('m-ok').onclick=()=>{ modal.hidden=true; remiseAPlat();
+  setTimeout(()=>{ window.print(); setTimeout(ajusterZoom,400); },120); };
 modal.addEventListener('click',e=>{ if(e.target===modal) modal.hidden=true; });
 
 /* ===================== FILIGRANE ===================== */
@@ -567,8 +608,8 @@ function sauver(){
   },600);
 }
 function restaurer(){
-  if(!dispo){ etat.className='etat ko';
-    etat.textContent="Sauvegarde indisponible ici — elle fonctionnera une fois le site en ligne."; return; }
+  if(!dispo){ etat.className='etat';
+    etat.textContent="Ce navigateur ne conserve pas votre brouillon. Terminez votre CV en une fois."; return; }
   let o=null;
   try{ o=JSON.parse(localStorage.getItem(CLE)||'null'); }catch(e){}
   if(!o) return;
@@ -607,6 +648,45 @@ document.addEventListener('input',()=>setTimeout(check,0));
 window.addEventListener('resize',check);
 setTimeout(check,120);
 setTimeout(restaurer,60);
+
+/* ===================== AFFICHAGE TÉLÉPHONE ===================== */
+document.body.classList.add('vue-form');
+const zoomEl=document.querySelector('.zoom'), wrapEl=document.querySelector('.zoomwrap');
+function ajusterZoom(){
+  if(!zoomEl||!wrapEl) return;
+  const pg=document.querySelector('.page');
+  if(window.matchMedia('screen and (max-width:900px)').matches){
+    const dispo=wrapEl.clientWidth, large=pg.offsetWidth||794;
+    if(!dispo) return;
+    const k=Math.min(1,dispo/large);
+    zoomEl.style.width=large+'px';
+    zoomEl.style.transform='scale('+k+')';
+    wrapEl.style.height=(zoomEl.offsetHeight*k)+'px';
+  } else {
+    zoomEl.style.width=''; zoomEl.style.transform=''; wrapEl.style.height='';
+  }
+}
+function remiseAPlat(){
+  if(zoomEl){ zoomEl.style.width=''; zoomEl.style.transform=''; }
+  if(wrapEl) wrapEl.style.height='';
+}
+document.querySelectorAll('.ong').forEach(b=>{
+  b.onclick=()=>{
+    const ap = b.dataset.vue==='apercu';
+    document.body.classList.toggle('vue-apercu', ap);
+    document.body.classList.toggle('vue-form', !ap);
+    document.querySelectorAll('.ong').forEach(x=>x.classList.toggle('actif', x===b));
+    if(ap) ajusterZoom();
+    window.scrollTo(0,0);
+  };
+});
+window.addEventListener('resize', ajusterZoom);
+document.addEventListener('input', ()=>setTimeout(ajusterZoom,0));
+document.addEventListener('click', e=>{ if(e.target.closest('.add,.del')) setTimeout(ajusterZoom,0); });
+window.addEventListener('beforeprint', remiseAPlat);
+window.addEventListener('afterprint', ajusterZoom);
+setTimeout(ajusterZoom,160);
+
 </script>
 </body>
 </html>
