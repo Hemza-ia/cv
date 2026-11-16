@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Générateur de CV — France · Infirmier</title>
+<style>
+  :root{
+    color-scheme:light;
+    --blue-900:#0E3A66;   /* titres, nom */
+    --blue-700:#1B5E9E;   /* organismes */
+    --blue-500:#2E7DC4;   /* accent, puces */
+    --blue-050:#EDF3FA;   /* fond colonne gauche */
+    --blue-line:#B9CEE4;
+    --ink:#16202B;
+    --muted:#5D6B7A;
+    --bg:#7C8894;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Carlito,Calibri,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+
+  /* ===================== ATELIER (écran) ===================== */
+  .app{display:grid;grid-template-columns:400px 1fr;min-height:100vh}
+  .form{background:#fff;padding:20px 22px 120px;overflow-y:auto;height:100vh;border-right:1px solid #D3DFEC}
+  .form h1{font-size:17px;color:var(--blue-900);margin-bottom:3px}
+  .form .lede{font-size:12.5px;color:#5A4A16;margin-bottom:18px;line-height:1.5;
+    background:#FFF8DB;border-left:3px solid #E3C34D;border-radius:5px;padding:10px 12px}
+  .form .lede b{color:#3F3410}
+  fieldset{border:none;border-top:1px solid #E3EBF3;padding-top:14px;margin-top:16px}
+  legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--blue-500);font-weight:700;padding-right:8px}
+  label{display:block;font-size:11.5px;color:var(--muted);margin:10px 0 3px}
+  input,textarea{width:100%;padding:7px 9px;border:1px solid #C6D6E6;border-radius:5px;
+    font:inherit;font-size:13px;background:#FAFCFE;color:var(--ink)}
+  input:focus,textarea:focus{outline:2px solid var(--blue-500);outline-offset:-1px;background:#fff}
+  textarea{resize:vertical;min-height:56px;line-height:1.4}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .blk{border:1px solid #E3EBF3;border-radius:7px;padding:10px 11px 13px;margin-top:11px;background:#FAFCFE;position:relative}
+  .blk .del{position:absolute;top:7px;right:8px;background:none;border:none;color:#B04A4A;
+    cursor:pointer;font-size:16px;line-height:1;padding:2px 5px;border-radius:4px}
+  .blk .del:hover{background:#FBEAEA}
+  .add{margin-top:10px;background:#fff;border:1px dashed var(--blue-500);color:var(--blue-700);
+    padding:7px 12px;border-radius:6px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:700;width:100%}
+  .add:hover{background:#EFF6FD}
+  .hint{font-size:11px;color:var(--muted);font-style:italic;margin-top:4px;line-height:1.4}
+  .go{position:fixed;left:0;bottom:0;width:400px;padding:12px 22px 14px;background:#fff;
+    border-top:1px solid #E3EBF3;box-shadow:0 -6px 14px rgba(0,0,0,.05);z-index:5}
+  .go button{width:100%;background:var(--blue-700);color:#fff;border:none;padding:13px;border-radius:7px;
+    font:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+  .go button:hover{background:var(--blue-900)}
+  .go .note{font-size:11px;color:var(--muted);text-align:center;margin-top:7px}
+  .stage{padding:26px 20px 60px;overflow-y:auto;height:100vh;display:flex;justify-content:center;align-items:flex-start}
+  .shadow{box-shadow:0 6px 26px rgba(0,0,0,.28)}
+  .warn{width:210mm;margin:0 auto 10px;background:#FFF4E5;border:1px solid #E0A94A;color:#7A4B06;
+    border-radius:7px;padding:10px 14px;font-size:13px;line-height:1.45;display:none}
+  .warn.on{display:block}
+
+  /* ===================== LE CV ===================== */
+  .page,.side,.photo{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:297mm;overflow:hidden;background:#fff;
+    display:grid;grid-template-columns:62mm 1fr;font-size:10pt;line-height:1.36;flex:none}
+
+  /* --- colonne gauche --- */
+  .side{background:var(--blue-050);padding:12mm 7mm 10mm 9mm}
+  .photo{width:37mm;height:45mm;margin:0 auto 6mm;border:1px solid var(--blue-line);background:#DCE8F4;
+    display:flex;align-items:center;justify-content:center;color:#93AECA;font-size:8pt;
+    letter-spacing:.08em;text-transform:uppercase;overflow:hidden}
+  .photo img{width:100%;height:100%;object-fit:cover}
+  .side h2{font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-900);
+    border-bottom:1.3pt solid var(--blue-700);padding-bottom:1.4mm;margin:0 0 2.8mm}
+  .side section{margin-bottom:6mm}
+  .kv{margin-bottom:2.2mm}
+  .kv .k{display:block;font-size:7.6pt;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .kv .v{display:block;word-break:break-word;font-size:9pt}
+  .side ul{list-style:none}
+  .side ul li{position:relative;padding-left:3.4mm;margin-bottom:1.5mm;font-size:9pt}
+  .side ul li::before{content:"";position:absolute;left:0;top:1.8mm;width:1.5mm;height:1.5mm;background:var(--blue-500)}
+  .status .note{display:block;font-size:8pt;color:var(--muted);font-style:italic}
+  .lang{display:flex;justify-content:space-between;gap:2mm;margin-bottom:1.5mm;font-size:9pt}
+  .lang .lvl{color:var(--muted);white-space:nowrap;font-size:8.6pt}
+
+  /* --- colonne droite --- */
+  .main{padding:12mm 11mm 10mm 9mm}
+  .name{font-size:21.5pt;line-height:1.08;color:var(--blue-900)}
+  .name .fn{font-weight:400}
+  .name .ln{font-weight:700;text-transform:uppercase}
+  .role{font-size:11.5pt;color:var(--blue-500);margin-top:1mm;font-weight:700}
+  .subrole{font-size:9.5pt;color:var(--muted);margin-top:.7mm}
+  .intro{margin:4.4mm 0 5.4mm;font-size:9.5pt;color:#28323C;
+    border-left:2.4pt solid var(--blue-500);padding-left:3.6mm}
+  .main h2{font-size:9.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-900);
+    border-bottom:1.3pt solid var(--blue-700);padding-bottom:1.3mm;margin:0 0 3mm}
+  .main section{margin-bottom:5.6mm}
+  .item{margin-bottom:3.8mm}
+  .item:last-child{margin-bottom:0}
+  .item .line1{display:flex;justify-content:space-between;align-items:baseline;gap:4mm}
+  .item .title{font-weight:700;font-size:10.2pt}
+  .item .dates{font-size:8.8pt;color:var(--muted);white-space:nowrap}
+  .item .org{font-size:9.4pt;color:var(--blue-700);font-weight:700;margin-top:.3mm}
+  .item .place{font-weight:400;color:var(--muted)}
+  /* une seule écriture pour toutes les listes de la colonne droite */
+  .main ul{list-style:none;margin-top:1.4mm}
+  .main ul li{position:relative;padding-left:4mm;margin-bottom:1mm;font-size:9.4pt}
+  .main ul li::before{content:"–";position:absolute;left:0;color:var(--blue-500);font-weight:700}
+  /* listes autonomes : tiret dans la marge, texte aligné sur les titres d'entrées */
+  .cols{margin-top:0}
+  .cols li{padding-left:0;margin-bottom:1.3mm}
+  .cols li::before{left:-4mm}
+  .refs{font-size:9.4pt;color:var(--muted);font-style:italic}
+
+  /* ===================== FILIGRANE ===================== */
+  .page{position:relative}
+  .wm{position:absolute;left:-25%;top:-25%;width:150%;height:150%;
+    display:flex;flex-wrap:wrap;align-content:center;justify-content:center;
+    gap:11mm 8mm;transform:rotate(-30deg);pointer-events:none;z-index:6;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wm span{font-size:18pt;font-weight:700;letter-spacing:.14em;white-space:nowrap;
+    color:rgba(18,60,100,.155);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.unlocked .wm{display:none}
+
+  /* ===================== ÉTAT / DÉBLOCAGE ===================== */
+  .etat{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:14px}
+  .etat.ko{color:#A8410F}
+  .cle{display:flex;gap:7px;margin-top:4px}
+  .cle input{flex:1;text-transform:uppercase;letter-spacing:.05em}
+  .cle button{background:var(--blue-700);color:#fff;border:none;border-radius:5px;
+    padding:0 14px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .cle button:hover{background:var(--blue-900)}
+  .verdict{font-size:11.5px;margin-top:6px;line-height:1.4}
+  .verdict.ok{color:#0F6B3F;font-weight:700}
+  .verdict.no{color:#A8410F}
+  .lien{background:none;border:none;color:var(--blue-700);text-decoration:underline;
+    cursor:pointer;font:inherit;font-size:11px;padding:0;margin-top:8px}
+
+  /* ===================== RAPPEL AVANT IMPRESSION ===================== */
+  .modal{position:fixed;inset:0;background:rgba(12,28,48,.55);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal[hidden]{display:none}
+  .boite{background:#fff;border-radius:12px;max-width:440px;padding:24px 26px;
+    box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .boite h3{font-size:17px;color:var(--blue-900);margin-bottom:10px}
+  .boite p{font-size:13.5px;line-height:1.6;color:var(--ink);margin-bottom:8px}
+  .boite .enc{background:#FFF8DB;border-left:3px solid #E3C34D;border-radius:5px;
+    padding:10px 12px;font-size:13px;line-height:1.55;color:#5A4A16;margin:12px 0 16px}
+  .boite .acts{display:flex;gap:10px;justify-content:flex-end}
+  .boite button{border:none;border-radius:7px;padding:10px 18px;font:inherit;
+    font-size:13.5px;font-weight:700;cursor:pointer;background:var(--blue-700);color:#fff}
+  .boite button:hover{background:var(--blue-900)}
+  .boite button.sec{background:#fff;color:var(--blue-700);border:1px solid var(--blue-500)}
+  .boite .sombre{font-size:12px;color:var(--muted);line-height:1.5;margin:-8px 0 14px}
+
+
+  /* ===================== AFFICHAGE TÉLÉPHONE ===================== */
+  .onglets{display:none}
+  .surtel{display:none}
+  @media screen and (max-width:900px){
+    .surpc{display:none}
+    .surtel{display:inline}
+    .onglets{display:flex;position:sticky;top:0;z-index:30;background:#fff;
+      border-bottom:1px solid #D3DFEC;box-shadow:0 2px 8px rgba(16,40,70,.07)}
+    .onglets button{flex:1;background:none;border:none;border-bottom:3px solid transparent;
+      padding:13px 8px;font:inherit;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
+    .onglets button.actif{color:var(--blue-900);border-bottom-color:var(--blue-700)}
+    .app{display:block;min-height:0}
+    .form{height:auto;overflow:visible;border-right:none;padding:16px 14px 160px}
+    .go{width:100%;left:0}
+    .stage{height:auto;overflow:visible;display:block;padding:12px 8px 118px}
+    .zoom{transform-origin:top left}
+    .warn{width:auto;max-width:100%}
+    body.vue-apercu .form{display:none}
+    body.vue-form .stage{display:none}
+  }
+
+  /* ===================== IMPRESSION ===================== */
+  @page{size:A4;margin:0}
+  @media print{
+    body{background:#fff}
+    .app{display:block}
+    .form,.warn,.modal,.onglets,.go{display:none}
+    .stage{padding:0;height:auto;display:block;overflow:visible}
+    .zoom,.zoomwrap{width:auto !important;height:auto !important;transform:none !important}
+    .shadow{box-shadow:none}
+    html,body{height:auto;margin:0;padding:0}
+    .app{min-height:0}
+    .page{margin:0;height:295.0mm;
+      break-inside:avoid;page-break-inside:avoid;
+      break-after:avoid;page-break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="onglets" id="onglets">
+    <button class="ong actif" type="button" data-vue="form">Formulaire</button>
+    <button class="ong" type="button" data-vue="apercu">Aperçu du CV</button>
+  </div>
+
+
+  <!-- ============ FORMULAIRE (ordre du CV) ============ -->
+  <div class="form">
+    <h1>Votre CV — France · Infirmier</h1>
+    <p class="lede"><span class="surpc">Remplissez à gauche, le CV se dessine à droite en direct.</span><span class="surtel">Deux onglets en haut&nbsp;: <b>Formulaire</b> pour saisir, <b>Aperçu du CV</b> pour voir le résultat.</span>
+       Les rubriques suivent l'ordre du document.<br>
+       Le bouton <b>+ Ajouter</b> crée une nouvelle entrée, la croix <b>&times;</b> la supprime.
+       Une rubrique laissée vide disparaît automatiquement du CV.</p>
+
+    <fieldset>
+      <legend>Identité</legend>
+      <label>Photo</label>
+      <input type="file" id="photo" accept="image/*">
+      <p class="hint">Tolérée en France. Elle disparaîtra sur le modèle Canada-Québec.</p>
+      <div class="row">
+        <div><label>Prénom</label><input data-b="prenom" value="Amina"></div>
+        <div><label>Nom</label><input data-b="nom" value="Meziane"></div>
+      </div>
+      <label>Titre professionnel</label>
+      <input data-b="titre" value="Infirmière diplômée d'État">
+      <label>Sous-titre</label>
+      <input data-b="soustitre" value="7 ans d'exercice hospitalier · Autorisation d'exercice en cours — CRAE">
+      <label>Accroche</label>
+      <textarea data-b="accroche" rows="4">Infirmière diplômée d'État formée à Alger, sept ans d'exercice en réanimation polyvalente et en médecine interne. Je recherche un poste d'infirmière en centre hospitalier français, dans le cadre de la procédure d'autorisation d'exercice.</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact</legend>
+      <label>Téléphone</label><input data-b="tel" value="+213 6 61 00 00 00">
+      <label>E-mail</label><input data-b="email" value="a.meziane.ide@email.com">
+      <label>Adresse</label><input data-b="adresse" value="16000 Alger, Algérie">
+      <label>LinkedIn</label><input data-b="linkedin" value="linkedin.com/in/ameziane-ide">
+    </fieldset>
+
+    <fieldset>
+      <legend>Statut administratif</legend>
+      <p class="hint">Le bloc que les DRH d'hôpital lisent en premier.</p>
+      <div id="statut"></div>
+      <button class="add" data-add="statut">+ Ajouter une ligne</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Langues</legend>
+      <div id="langues"></div>
+      <button class="add" data-add="langues">+ Ajouter une langue</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Expérience professionnelle</legend>
+      <div id="exp"></div>
+      <button class="add" data-add="exp">+ Ajouter un poste</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Formation</legend>
+      <div id="form"></div>
+      <button class="add" data-add="form">+ Ajouter un diplôme</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Formation complémentaire et stages</legend>
+      <p class="hint">DU / DIU et stages hospitaliers. Un stage en France pèse lourd :
+         il donne un référent français au dossier. Laissez vide si vous n'en avez pas,
+         la rubrique disparaîtra du CV.</p>
+      <div id="stages"></div>
+      <button class="add" data-add="stages">+ Ajouter un DU ou un stage</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Soins et techniques</legend>
+      <label>Une ligne par acte</label>
+      <textarea data-b="actes" rows="5">Pose et surveillance de voies veineuses périphériques et centrales
+Surveillance hémodynamique et ventilation mécanique
+Transfusion sanguine et hémovigilance
+Pansements complexes et plaies chroniques
+Préparation et administration des thérapeutiques injectables</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Certifications</legend>
+      <label>Une ligne par certification</label>
+      <textarea data-b="certifs" rows="3">AFGSU niveau 2 — 2025
+Formation hémovigilance — 2023</textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Références</legend>
+      <label>Mention</label>
+      <input data-b="mention" value="Références professionnelles communiquées sur demande.">
+      <p class="hint">En France, cette mention suffit. Au Québec et dans le Golfe, listez plutôt
+         2 à 3 personnes ci-dessous — et demandez toujours leur accord avant de les citer.
+         Videz la mention si vous listez des noms.</p>
+      <div id="refs"></div>
+      <button class="add" data-add="refs">+ Ajouter une référence</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Déblocage</legend>
+      <p class="hint">Sans code, le CV se télécharge avec un filigrane « SPÉCIMEN ».
+         Le code reçu après paiement le retire définitivement sur cet appareil. Ce modèle attend un code commençant par <b>FRI</b>.</p>
+      <div class="cle">
+        <input id="code" placeholder="FRI-XXXXX-2026" autocomplete="off">
+        <button id="btn-code" type="button">Débloquer</button>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <button class="lien" id="btn-reset" type="button">Effacer le brouillon et recommencer</button>
+    </fieldset>
+
+  </div>
+
+  <div class="go">
+    <button id="btn-pdf">Télécharger en PDF</button>
+    <p class="note">Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF ».</p>
+    <p class="etat" id="etat"></p>
+  </div>
+
+  <!-- ============ APERÇU ============ -->
+  <div class="stage">
+   <div>
+    <div class="warn" id="warn">
+      <b>Le contenu dépasse la page.</b> Ce qui suit ne sera pas imprimé.
+      Raccourcissez une mission, retirez un poste ancien, ou allégez les actes techniques.
+    </div>
+
+    <div class="zoomwrap"><div class="zoom">
+    <div class="page shadow">
+      <div class="wm" id="wm" aria-hidden="true"></div>
+      <aside class="side">
+        <div class="photo" id="v-photo">Photo</div>
+        <section>
+          <h2>Contact</h2>
+          <div class="kv"><span class="k">Téléphone</span><span class="v" id="v-tel"></span></div>
+          <div class="kv"><span class="k">E-mail</span><span class="v" id="v-email"></span></div>
+          <div class="kv"><span class="k">Adresse</span><span class="v" id="v-adresse"></span></div>
+          <div class="kv"><span class="k">LinkedIn</span><span class="v" id="v-linkedin"></span></div>
+        </section>
+        <section class="status">
+          <h2>Statut administratif</h2>
+          <ul id="v-statut"></ul>
+        </section>
+        <section>
+          <h2>Langues</h2>
+          <div id="v-langues"></div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header>
+          <h1 class="name"><span class="fn" id="v-prenom"></span> <span class="ln" id="v-nom"></span></h1>
+          <div class="role" id="v-titre"></div>
+          <div class="subrole" id="v-soustitre"></div>
+        </header>
+        <p class="intro" id="v-accroche"></p>
+
+        <section>
+          <h2>Expérience professionnelle</h2>
+          <div id="v-exp"></div>
+        </section>
+
+        <section>
+          <h2>Formation</h2>
+          <div id="v-form"></div>
+        </section>
+
+        <section id="s-stages">
+          <h2>Formation complémentaire et stages</h2>
+          <div id="v-stages"></div>
+        </section>
+
+        <section>
+          <h2>Soins et techniques</h2>
+          <ul class="cols" id="v-actes"></ul>
+        </section>
+
+        <section>
+          <h2>Certifications</h2>
+          <ul class="cols" id="v-certifs"></ul>
+        </section>
+
+        <section id="s-refs">
+          <h2>Références</h2>
+          <p class="refs" id="v-mention"></p>
+          <ul class="cols" id="v-refs"></ul>
+        </section>
+        <div id="fin"></div>
+      </main>
+    </div></div></div>
+   </div>
+  </div>
+  <div class="modal" id="modal" hidden>
+    <div class="boite">
+      <h3>Avant de télécharger</h3>
+      <p>La fenêtre d'impression va s'ouvrir. Tout en haut, à la ligne <b>Imprimante</b> :</p>
+      <div class="enc">Choisissez <b>« Enregistrer au format PDF »</b> dans la liste.<br>
+        Sans ça, votre CV part vers une imprimante au lieu d'être enregistré.</div>
+      <p class="sombre">Si votre téléphone est en <b>mode sombre</b>, désactivez-le d'abord :
+        certains navigateurs enregistrent sinon le CV sur fond noir.</p>
+      <div class="acts">
+        <button class="sec" id="m-annuler">Annuler</button>
+        <button id="m-ok">J'ai compris</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+const DATA={refs:[]};
+
+/* ---------- champs simples ---------- */
+document.querySelectorAll('[data-b]').forEach(el=>{
+  const t=document.getElementById('v-'+el.dataset.b);
+  const sync=()=>{
+    if(el.dataset.b==='actes'||el.dataset.b==='certifs'){
+      t.innerHTML = el.value.split('\n').filter(s=>s.trim()).map(s=>'<li>'+esc(s)+'</li>').join('');
+      t.closest('section').style.display = t.innerHTML ? '' : 'none';
+    } else if(el.dataset.b==='mention'){
+      t.textContent = el.value;
+      t.style.display = el.value.trim() ? '' : 'none';
+      refsVis();
+    } else { t.textContent = el.value; }
+  };
+  el.addEventListener('input',sync); sync();
+});
+
+/* ---------- photo ---------- */
+document.getElementById('photo').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    photoURL=ev.target.result;
+    document.getElementById('v-photo').innerHTML='<img src="'+photoURL+'">';
+    sauver();
+  };
+  r.readAsDataURL(f);
+});
+
+/* ---------- blocs répétables ---------- */
+const SCHEMA={
+  statut:{fields:[['txt','Intitulé','N° RPPS'],['note','Précision (facultatif)',"Délivré par l'Ordre après inscription"]],
+    render:d=>'<li>'+esc(d.txt)+(d.note?'<span class="note">'+esc(d.note)+'</span>':'')+'</li>',
+    seed:[{txt:'Nationalité algérienne',note:''},
+          {txt:"Autorisation d'exercice (art. L.4311-4)",note:'Dossier déposé en CRAE — avis en attente'},
+          {txt:'Voie retenue',note:'Parcours de consolidation des compétences'},
+          {txt:'Français B2',note:"Entretien et écrit — Ordre national des infirmiers"},
+          {txt:"Inscription à l'Ordre national des infirmiers",note:'Obligatoire avant tout exercice'},
+          {txt:'N° RPPS',note:"Délivré par l'Ordre après inscription"}]},
+
+  langues:{fields:[['langue','Langue','Français'],['niveau','Niveau','C2 — DALF']],
+    render:d=>'<div class="lang"><span>'+esc(d.langue)+'</span><span class="lvl">'+esc(d.niveau)+'</span></div>',
+    seed:[{langue:'Arabe',niveau:'langue maternelle'},
+          {langue:'Français',niveau:'C2 — DALF'},
+          {langue:'Anglais',niveau:'B2 — IELTS 6.5'}]},
+
+  exp:{fields:[['poste','Poste','Infirmière — Réanimation polyvalente'],
+               ['dates','Dates',"Sept. 2021 – Aujourd'hui"],
+               ['etab','Établissement','CHU Mustapha Pacha'],
+               ['lieu','Ville, pays','Alger, Algérie'],
+               ['pts','Missions (une par ligne)','Ratio 1 infirmière pour 2 lits']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.poste)+
+      '</span><span class="dates">'+esc(d.dates)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.lieu?' <span class="place">— '+esc(d.lieu)+'</span>':'')+'</div>'+
+      (d.pts?'<ul>'+d.pts.split('\n').filter(s=>s.trim()).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+'</div>',
+    seed:[{poste:'Infirmière — Réanimation polyvalente',dates:"Sept. 2021 – Aujourd'hui",
+           etab:'CHU Mustapha Pacha',lieu:'Alger, Algérie',
+           pts:"Prise en charge de patients de réanimation, ratio 1 infirmière pour 2 lits.\nSurveillance hémodynamique, ventilation invasive et gestion des voies centrales.\nProtocole de prévention des infections sur cathéter : taux ramené de 4,1 à 1,8 pour 1 000 jours-cathéter."},
+          {poste:'Infirmière — Médecine interne',dates:'Oct. 2018 – Août 2021',
+           etab:'EPH Kouba',lieu:'Alger, Algérie',
+           pts:"Prise en charge de 12 à 15 patients par poste, en équipe de 3.\nÉducation thérapeutique des patients diabétiques et tutorat des étudiants en soins infirmiers."}]},
+
+  form:{fields:[['dip','Diplôme',"Diplôme d'État d'infirmier"],
+                ['annee','Année','2018'],
+                ['etab','Établissement',"Institut national de formation supérieure paramédicale"],
+                ['mention','Précision','Alger']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.dip)+
+      '</span><span class="dates">'+esc(d.annee)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.mention?' <span class="place">— '+esc(d.mention)+'</span>':'')+'</div></div>',
+    seed:[{dip:"Diplôme d'État d'infirmier",annee:'2018',
+           etab:"Institut national de formation supérieure paramédicale",mention:'Alger'},
+          {dip:"Baccalauréat — série sciences expérimentales",annee:'2015',
+           etab:'Lycée El Idrissi',mention:'Alger'}]},
+
+  stages:{fields:[['intit','Intitulé','DU Plaies et cicatrisation'],
+                  ['dates','Dates','2023'],
+                  ['etab','Établissement','Université de Montpellier'],
+                  ['lieu','Ville, pays','Montpellier, France']],
+    render:d=>'<div class="item"><div class="line1"><span class="title">'+esc(d.intit)+
+      '</span><span class="dates">'+esc(d.dates)+'</span></div><div class="org">'+esc(d.etab)+
+      (d.lieu?' <span class="place">— '+esc(d.lieu)+'</span>':'')+'</div></div>',
+    seed:[{intit:'DU Plaies et cicatrisation',dates:'2023',
+           etab:'Université de Montpellier',lieu:'Montpellier, France'},
+          {intit:"Stage hospitalier — Service de réanimation",dates:'Fév. – Juin 2024',
+           etab:'CHU de Nantes',lieu:'Nantes, France'}]},
+
+  refs:{fields:[['nom','Nom','Pr Karim Haddad'],
+                ['fonction','Fonction','Chef de service de cardiologie'],
+                ['etab','Établissement','CHU Mustapha Pacha'],
+                ['contact','Contact','k.haddad@chu-alger.dz']],
+    render:d=>'<li><b>'+esc(d.nom)+'</b>'+(d.fonction?' — '+esc(d.fonction):'')+
+      (d.etab?', '+esc(d.etab):'')+(d.contact?' · '+esc(d.contact):'')+'</li>',
+    seed:[]}
+};
+
+function build(key){
+  const box=document.getElementById(key), s=SCHEMA[key];
+  box.innerHTML='';
+  DATA[key].forEach((d,i)=>{
+    const b=document.createElement('div'); b.className='blk';
+    b.innerHTML='<button class="del" title="Supprimer">&times;</button>';
+    s.fields.forEach(([k,lbl,ph])=>{
+      const lab=document.createElement('label'); lab.textContent=lbl; b.appendChild(lab);
+      const inp = k==='pts' ? document.createElement('textarea') : document.createElement('input');
+      if(k==='pts') inp.rows=3;
+      inp.placeholder=ph; inp.value=d[k]||'';
+      inp.addEventListener('input',()=>{d[k]=inp.value;paint(key);check();});
+      b.appendChild(inp);
+    });
+    b.querySelector('.del').onclick=()=>{DATA[key].splice(i,1);build(key);paint(key);check();};
+    box.appendChild(b);
+  });
+}
+function paint(key){
+  document.getElementById('v-'+key).innerHTML = DATA[key].map(SCHEMA[key].render).join('');
+  if(key==='stages'){
+    document.getElementById('s-stages').style.display = DATA.stages.length ? '' : 'none';
+  }
+  if(key==='refs') refsVis();
+}
+function refsVis(){
+  const m=document.getElementById('v-mention');
+  const vide = !(m && m.textContent.trim()) && !(DATA.refs && DATA.refs.length);
+  document.getElementById('s-refs').style.display = vide ? 'none' : '';
+}
+Object.keys(SCHEMA).forEach(k=>{
+  DATA[k]=SCHEMA[k].seed.map(o=>Object.assign({},o));
+  build(k); paint(k);
+});
+document.querySelectorAll('[data-add]').forEach(btn=>{
+  btn.onclick=()=>{const k=btn.dataset.add;
+    DATA[k].push(Object.fromEntries(SCHEMA[k].fields.map(f=>[f[0],''])));
+    build(k); paint(k); check();};
+});
+
+/* ===================== RAPPEL AVANT IMPRESSION ===================== */
+const modal=document.getElementById('modal');
+document.getElementById('btn-pdf').onclick=()=>{ modal.hidden=false; };
+document.getElementById('m-annuler').onclick=()=>{ modal.hidden=true; };
+document.getElementById('m-ok').onclick=()=>{ modal.hidden=true; remiseAPlat();
+  setTimeout(()=>{ window.print(); setTimeout(ajusterZoom,400); },120); };
+modal.addEventListener('click',e=>{ if(e.target===modal) modal.hidden=true; });
+
+/* ===================== FILIGRANE ===================== */
+const FILIGRANE = 'SPÉCIMEN';   // texte du filigrane — modifiable
+(function(){
+  const w=document.getElementById('wm');
+  for(let i=0;i<96;i++){const sp=document.createElement('span');sp.textContent=FILIGRANE;w.appendChild(sp);}
+})();
+
+/* ===================== DÉBLOCAGE ===================== */
+/* Aucune liste de codes : la validité se calcule.
+   Un code est accepté si son empreinte commence par SIGNATURE.
+   outils_codes.html applique exactement la même règle pour les fabriquer. */
+const SIGNATURE = 'b41';
+function empreinte(t){
+  let h=0x811c9dc5, s='OBX|'+t;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h.toString(16).padStart(8,'0');
+}
+function appliquerDeblocage(ok){ document.body.classList.toggle('unlocked', !!ok); }
+const vd=document.getElementById('verdict');
+document.getElementById('btn-code').onclick=()=>{
+  const c=document.getElementById('code').value.trim().toUpperCase();
+  if(!c){vd.className='verdict no';vd.textContent='Saisissez votre code.';return;}
+  if(empreinte(c).startsWith(SIGNATURE)){
+    appliquerDeblocage(true);
+    vd.className='verdict ok'; vd.textContent='Code accepté — le filigrane est retiré.';
+    sauver();
+  } else {
+    appliquerDeblocage(false);
+    vd.className='verdict no'; vd.textContent="Code non reconnu. Vérifiez les tirets et l'année.";
+  }
+};
+
+/* ===================== SAUVEGARDE AUTOMATIQUE ===================== */
+const CLE='cv_fr_infirmier';
+const etat=document.getElementById('etat');
+let photoURL='';
+let dispo=true;
+try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); }catch(e){ dispo=false; }
+
+function recueillir(){
+  const simple={};
+  document.querySelectorAll('[data-b]').forEach(el=>simple[el.dataset.b]=el.value);
+  return {simple, blocs:DATA, photo:photoURL,
+          debloque:document.body.classList.contains('unlocked')};
+}
+let minuteur=null;
+function sauver(){
+  if(!dispo) return;
+  clearTimeout(minuteur);
+  minuteur=setTimeout(()=>{
+    try{
+      localStorage.setItem(CLE, JSON.stringify(recueillir()));
+      const d=new Date();
+      etat.className='etat';
+      etat.textContent='Brouillon enregistré à '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    }catch(e){
+      etat.className='etat ko';
+      etat.textContent='Brouillon trop volumineux — réduisez la photo.';
+    }
+  },600);
+}
+function restaurer(){
+  if(!dispo){ etat.className='etat';
+    etat.textContent="Ce navigateur ne conserve pas votre brouillon. Terminez votre CV en une fois."; return; }
+  let o=null;
+  try{ o=JSON.parse(localStorage.getItem(CLE)||'null'); }catch(e){}
+  if(!o) return;
+  document.querySelectorAll('[data-b]').forEach(el=>{
+    if(o.simple && o.simple[el.dataset.b]!==undefined){
+      el.value=o.simple[el.dataset.b];
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+  if(o.blocs){ Object.keys(SCHEMA).forEach(k=>{
+    if(Array.isArray(o.blocs[k])){ DATA[k]=o.blocs[k]; build(k); paint(k); } }); }
+  const cadre=document.getElementById('v-photo');
+  if(o.photo && cadre){ photoURL=o.photo; cadre.innerHTML='<img src="'+o.photo+'">'; }
+  if(o.debloque) appliquerDeblocage(true);
+  etat.textContent='Brouillon restauré.';
+  check();
+}
+document.getElementById('btn-reset').onclick=()=>{
+  if(!confirm('Effacer le brouillon enregistré et recharger la page ?')) return;
+  try{ localStorage.removeItem(CLE); }catch(e){}
+  location.reload();
+};
+document.addEventListener('input', sauver);
+document.addEventListener('click', e=>{ if(e.target.closest('.add,.del')) sauver(); });
+
+/* ---------- alerte de dépassement A4 ---------- */
+const page=document.querySelector('.page'), fin=document.getElementById('fin'),
+      side=document.querySelector('.side'), warn=document.getElementById('warn');
+function check(){
+  const pb=page.getBoundingClientRect().bottom;
+  const over = fin.getBoundingClientRect().bottom > pb + 1
+            || side.scrollHeight > side.clientHeight + 1;
+  warn.classList.toggle('on', over);
+}
+document.addEventListener('input',()=>setTimeout(check,0));
+window.addEventListener('resize',check);
+setTimeout(check,120);
+setTimeout(restaurer,60);
+
+/* ===================== AFFICHAGE TÉLÉPHONE ===================== */
+document.body.classList.add('vue-form');
+const zoomEl=document.querySelector('.zoom'), wrapEl=document.querySelector('.zoomwrap');
+function ajusterZoom(){
+  if(!zoomEl||!wrapEl) return;
+  const pg=document.querySelector('.page');
+  if(window.matchMedia('screen and (max-width:900px)').matches){
+    const dispo=wrapEl.clientWidth, large=pg.offsetWidth||794;
+    if(!dispo) return;
+    const k=Math.min(1,dispo/large);
+    zoomEl.style.width=large+'px';
+    zoomEl.style.transform='scale('+k+')';
+    wrapEl.style.height=(zoomEl.offsetHeight*k)+'px';
+  } else {
+    zoomEl.style.width=''; zoomEl.style.transform=''; wrapEl.style.height='';
+  }
+}
+function remiseAPlat(){
+  if(zoomEl){ zoomEl.style.width=''; zoomEl.style.transform=''; }
+  if(wrapEl) wrapEl.style.height='';
+}
+document.querySelectorAll('.ong').forEach(b=>{
+  b.onclick=()=>{
+    const ap = b.dataset.vue==='apercu';
+    document.body.classList.toggle('vue-apercu', ap);
+    document.body.classList.toggle('vue-form', !ap);
+    document.querySelectorAll('.ong').forEach(x=>x.classList.toggle('actif', x===b));
+    if(ap) ajusterZoom();
+    window.scrollTo(0,0);
+  };
+});
+window.addEventListener('resize', ajusterZoom);
+document.addEventListener('input', ()=>setTimeout(ajusterZoom,0));
+document.addEventListener('click', e=>{ if(e.target.closest('.add,.del')) setTimeout(ajusterZoom,0); });
+window.addEventListener('beforeprint', remiseAPlat);
+window.addEventListener('afterprint', ajusterZoom);
+setTimeout(ajusterZoom,160);
+
+</script>
+</body>
+</html>
